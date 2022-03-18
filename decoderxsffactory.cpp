@@ -1,6 +1,6 @@
+#include "decoderxsffactory.h"
 #include "xsfhelper.h"
 #include "decoder_xsf.h"
-#include "decoderxsffactory.h"
 
 #include <QMessageBox>
 
@@ -12,7 +12,7 @@ bool DecoderXSFFactory::canDecode(QIODevice *) const
 DecoderProperties DecoderXSFFactory::properties() const
 {
     DecoderProperties properties;
-    properties.name = "XSF Plugin";
+    properties.name = tr("XSF Plugin");
     properties.shortName = "xsf";
     properties.filters << "*.2sf" << "*.mini2sf";
     properties.filters << "*.gsf" << "*.minigsf";
@@ -20,7 +20,6 @@ DecoderProperties DecoderXSFFactory::properties() const
     properties.filters << "*.ncsf" << "*.minincsf";
     properties.filters << "*.snsf" << "*.minisnsf";
     properties.description = "Overload Audio File";
-    properties.protocols << "file";
     properties.noInput = true;
     return properties;
 }
@@ -34,7 +33,6 @@ Decoder *DecoderXSFFactory::create(const QString &path, QIODevice *input)
 QList<TrackInfo*> DecoderXSFFactory::createPlayList(const QString &path, TrackInfo::Parts parts, QStringList *)
 {
     TrackInfo *info = new TrackInfo(path);
-
     if(parts == TrackInfo::Parts())
     {
         return QList<TrackInfo*>() << info;
@@ -62,11 +60,10 @@ QList<TrackInfo*> DecoderXSFFactory::createPlayList(const QString &path, TrackIn
         info->setValue(Qmmp::BITRATE, helper.bitrate());
         info->setValue(Qmmp::SAMPLERATE, helper.sampleRate());
         info->setValue(Qmmp::CHANNELS, helper.channels());
-        info->setValue(Qmmp::BITS_PER_SAMPLE, helper.bitsPerSample());
+        info->setValue(Qmmp::BITS_PER_SAMPLE, helper.depth());
         info->setValue(Qmmp::FORMAT_NAME, "XSF");
         info->setDuration(helper.totalTime());
     }
-
     return QList<TrackInfo*>() << info;
 }
 
