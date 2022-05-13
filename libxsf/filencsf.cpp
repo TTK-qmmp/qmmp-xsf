@@ -65,8 +65,8 @@ const psf_file_callbacks fncsf_file_system = {
 
 
 FileNCSFReader::FileNCSFReader()
-  : m_state(0)
-  , m_module(0)
+  : m_state(nullptr)
+  , m_module(nullptr)
 {
 }
 
@@ -172,7 +172,7 @@ int FileNCSFReader::open(const char* path)
 
   psf_info_meta_state info_state;
   info_state.info = &m_info;
-  if (psf_load(path, &fncsf_file_system, 0x25, 0, 0, psf_info_meta, &info_state, 0) <= 0)
+  if (psf_load(path, &fncsf_file_system, 0x25, nullptr, nullptr, psf_info_meta, &info_state, 0) <= 0)
     return -1;
 
   m_tag_song_ms = info_state.tag_song_ms;
@@ -197,7 +197,7 @@ void FileNCSFReader::decode_initialize()
   m_state  = new ncsf_loader_state();
   m_module = new Player();
 
-  if (psf_load(m_path.c_str(), &fncsf_file_system, 0x25, ncsf_loader, m_state, 0, 0, 0) < 0)
+  if (psf_load(m_path.c_str(), &fncsf_file_system, 0x25, ncsf_loader, m_state, nullptr, nullptr, 0) < 0)
     throw std::bad_alloc();
 
   PseudoFile file;

@@ -14,9 +14,9 @@ struct snsf_loader_state
 
   snsf_loader_state()
     : base_set(0)
-    , data(0)
+    , data(nullptr)
     , data_size(0)
-    , sram(0)
+    , sram(nullptr)
     , sram_size(0)
   {
   }
@@ -58,9 +58,9 @@ private:
   void decode_initialize();
   int  decode_run(int16_t* output_buffer, uint16_t size);
 
-  snsf_loader_state*        m_state;
-  struct snsf_running_state m_output;
-  SNESSystem*               m_module;
+  snsf_loader_state* m_state;
+  snsf_running_state m_output;
+  SNESSystem*        m_module;
 
   int m_remainder;
 };

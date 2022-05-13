@@ -145,7 +145,7 @@ struct psf_info_meta_state
   int tag_fade_ms;
 
   psf_info_meta_state()
-    : info(0)
+    : info(nullptr)
     , utf8(false)
     , tag_song_ms(0)
     , tag_fade_ms(0)

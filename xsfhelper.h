@@ -22,9 +22,11 @@
 #include <QMap>
 #include <QFile>
 #include <qmmp/qmmp.h>
-#include "xsfreader.h"
+#include <libxsf/psflib/psfcore.h>
 
-#define SAMPLE_BUF_SIZE     1024
+#define INPUT_BUFFER_SIZE   1024
+
+class FileReader;
 
 /*!
  * @author Greedysky <greedysky@163.com>
@@ -35,7 +37,7 @@ public:
     explicit XSFHelper(const QString &path);
     ~XSFHelper();
 
-    void metaOnly(bool meta);
+    void metaMode(bool meta);
 
     void deinit();
     bool initialize();
@@ -43,19 +45,20 @@ public:
     inline void seek(qint64 time) { m_input->seek(time); }
     inline qint64 totalTime() const { return m_input->length(); }
 
-    inline int bitrate() const { return m_bitrate; }
+    inline int bitrate() const { return 8; }
     inline int sampleRate() const { return 44100; }
     inline int channels() const { return 2; }
     inline int depth() const { return 16; }
 
-    inline qint64 read(unsigned char *data, qint64 maxSize) { return m_input->read((short*)data, SAMPLE_BUF_SIZE) * 4; }
-    QMap<Qmmp::MetaData, QString> readMetaData() const;
+    inline qint64 read(unsigned char *data, qint64) { return m_input->read((short*)data, INPUT_BUFFER_SIZE) * 4; }
+
+    inline bool hasTags() const { return !m_input->get_meta_map().empty(); }
+    inline QString tag(const char *key) const { return QString::fromStdString(m_input->get_meta_map()[key]); }
 
 private:
     QString m_path;
-    FileReader *m_input = nullptr;
-    int m_bitrate = 0;
     bool m_meta = false;
+    FileReader *m_input = nullptr;
 
 };
 

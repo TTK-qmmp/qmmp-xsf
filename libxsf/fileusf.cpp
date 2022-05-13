@@ -50,7 +50,7 @@ const psf_file_callbacks fusf_file_system = {
 
 
 FileUSFReader::FileUSFReader()
-  : m_state(0)
+  : m_state(nullptr)
 {
 }
 
@@ -145,7 +145,7 @@ int FileUSFReader::open(const char* path)
 
   // INFO: das info_state wird spaeter in den callbacks als "context" mitgegeben
   // psf_info_meta ist das "target"
-  if ( psf_load(path, &fusf_file_system, 0x21, 0, 0, psf_info_meta, &info_state, 0) <= 0 )
+  if ( psf_load(path, &fusf_file_system, 0x21, nullptr, nullptr, psf_info_meta, &info_state, 0) <= 0 )
     throw std::bad_alloc();
 
   m_tag_song_ms = info_state.tag_song_ms;
@@ -168,12 +168,12 @@ void FileUSFReader::decode_initialize()
   shutdown();
 
   m_state        = new usf_loader_state();
-  m_state->state = malloc(usf_get_state_size() );
+  m_state->state = malloc(usf_get_state_size());
 
   usf_clear(m_state->state);
   usf_set_hle_audio(m_state->state, 0);
 
-  if ( psf_load(m_path.c_str(), &fusf_file_system, 0x21, usf_loader, m_state->state, 0, 0, 0) < 0 )
+  if ( psf_load(m_path.c_str(), &fusf_file_system, 0x21, usf_loader, m_state->state, nullptr, nullptr, 0) < 0 )
     throw std::bad_alloc();
 
   usf_set_compare(m_state->state, 0);

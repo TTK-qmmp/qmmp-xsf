@@ -10,7 +10,7 @@ struct usf_loader_state
   void* state;
 
   usf_loader_state()
-    : state(0)
+    : state(nullptr)
   {
   }
 

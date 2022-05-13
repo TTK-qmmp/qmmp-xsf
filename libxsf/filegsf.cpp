@@ -46,7 +46,7 @@ static int gsf_loader(void* context, const uint8_t* exe, size_t exe_size, const 
   {
     iptr             = state->data;
     isize            = state->data_size;
-    state->data      = 0;
+    state->data      = nullptr;
     state->data_size = 0;
   }
   if (!iptr)
@@ -137,8 +137,8 @@ const psf_file_callbacks fgsf_file_system = {
 
 
 FileGSFReader::FileGSFReader()
-  : m_state(0)
-  , m_module(0)
+  : m_state(nullptr)
+  , m_module(nullptr)
 {
 }
 
@@ -183,7 +183,7 @@ int FileGSFReader::read(short* buffer, int size)
       else
       {
         memcpy(buffer, m_output.available_buffer, m_output.available_buffer_size<<2);
-        m_output.available_buffer = 0;
+        m_output.available_buffer = nullptr;
 
         buffer += m_output.available_buffer_size<<2;
         size   -= m_output.available_buffer_size;
@@ -213,7 +213,7 @@ void FileGSFReader::seek(int ms)
     decode_initialize();
   }
 
-  unsigned int howmany = ( int )( ( p_seconds - m_emu_pos )*44100 );
+  unsigned int howmany = ( int )( ( p_seconds - m_emu_pos ) * 44100 );
   // more abortable, and emu doesn't like doing huge numbers of samples per call anyway
   while ( howmany )
   {
@@ -279,7 +279,7 @@ int FileGSFReader::open(const char* path)
 
   // INFO: info_state is what is later passed as "context" in the callbacks
   // psf_info_meta then is the "target"
-  if ( psf_load(path, &fgsf_file_system, 0x22, 0, 0, psf_info_meta, &info_state, 0) <= 0 )
+  if ( psf_load(path, &fgsf_file_system, 0x22, nullptr, nullptr, psf_info_meta, &info_state, 0) <= 0 )
     return -1;
 
   m_tag_song_ms = info_state.tag_song_ms;
@@ -302,7 +302,7 @@ void FileGSFReader::decode_initialize()
   shutdown();
 
   m_state = new gsf_loader_state();
-  if ( psf_load(m_path.c_str(), &fgsf_file_system, 0x22, gsf_loader, m_state, 0, 0, 0) < 0 )
+  if ( psf_load(m_path.c_str(), &fgsf_file_system, 0x22, gsf_loader, m_state, nullptr, nullptr, 0) < 0 )
     throw std::bad_alloc();
 
   if (m_state->data_size > UINT_MAX)

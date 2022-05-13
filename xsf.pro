@@ -1,4 +1,4 @@
-include(../../plugins.pri)
+include($$PWD/../../plugins.pri)
 
 QMAKE_CXXFLAGS += -msse4.1 -std=c++11
 QMAKE_CFLAGS += -msse4.1 -std=gnu11
@@ -7,18 +7,17 @@ TARGET = $$PLUGINS_PREFIX/Input/xsf
 
 HEADERS += decoderxsffactory.h \
            decoder_xsf.h \
-           xsfhelper.h \
-           xsfreader.h
+           xsfhelper.h
     
 SOURCES += decoderxsffactory.cpp \
            decoder_xsf.cpp \
            xsfhelper.cpp \
-           xsfreader.cpp \
            libxsf/file2sf.cpp \
            libxsf/filegsf.cpp \
            libxsf/fileusf.cpp \
            libxsf/filencsf.cpp \
            libxsf/filesnsf.cpp \
+           libxsf/filemsu.cpp \
            libxsf/psflib/psf2fs.c \
            libxsf/psflib/psflib.c \
            libxsf/psflib/psfcore.cpp \

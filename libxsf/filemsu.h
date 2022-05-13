@@ -1,25 +1,32 @@
-#ifndef FILENCSF_H
-#define FILENCSF_H
+#ifndef FILEMSU_H
+#define FILEMSU_H
 
-#include <memory>
 #include "psflib/psfcore.h"
 
-struct SDAT;
-struct Player;
-
-struct ncsf_loader_state
+struct msu_loader_state
 {
-  uint32_t sseq = 0;
-  std::vector<uint8_t> sdatData;
-  std::unique_ptr<SDAT> sdat;
+  int64_t len = 0;
+  int64_t pos = 0;
+  void* buffer;
+
+  msu_loader_state()
+    : buffer(nullptr)
+  {
+  }
+
+  ~msu_loader_state()
+  {
+    if ( buffer )
+      free(buffer);
+  }
 };
 
 
-class FileNCSFReader : public FileReader
+class FileMSUReader : public FileReader
 {
 public:
-  FileNCSFReader();
-  virtual ~FileNCSFReader();
+  FileMSUReader();
+  virtual ~FileMSUReader();
 
   virtual bool load(const char* path, bool meta) override;
   virtual int  read(short* buffer, int size) override;
@@ -35,11 +42,7 @@ private:
   void decode_initialize();
   int  decode_run(int16_t* output_buffer, uint16_t size);
 
-  std::vector<uint8_t> m_sample_buffer;
-  ncsf_loader_state*   m_state;
-  Player*              m_module;
-
-  int m_remainder;
+  msu_loader_state* m_state;
 };
 
 #endif

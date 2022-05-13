@@ -17,14 +17,14 @@ static int load_2sf_map(struct twosf_loader_state* state, int issave, const unsi
   {
     iptr              = state->state;
     isize             = state->state_size;
-    state->state      = 0;
+    state->state      = nullptr;
     state->state_size = 0;
   }
   else
   {
     iptr            = state->rom;
     isize           = state->rom_size;
-    state->rom      = 0;
+    state->rom      = nullptr;
     state->rom_size = 0;
   }
   if (!iptr)
@@ -135,13 +135,6 @@ static int load_2sf_mapz(struct twosf_loader_state* state, int issave, const uns
     return -1;
   }
 
-  if (0)
-  {
-    uLong ccrc = crc32(crc32(0L, Z_NULL, 0), rdata, (uInt) usize);
-    if (ccrc != zcrc)
-      return -1;
-  }
-
   ret = load_2sf_map(state, issave, rdata, (unsigned) usize);
   free(rdata);
   return ret;
@@ -250,8 +243,8 @@ const psf_file_callbacks f2sf_file_system = {
 
 
 File2SFReader::File2SFReader()
-  : m_state(0)
-  , m_module(0)
+  : m_state(nullptr)
+  , m_module(nullptr)
 {
 }
 
@@ -288,15 +281,15 @@ int File2SFReader::read(short* buffer, int size)
     {
       if (m_output.available_buffer_size >= size)
       {
-        memcpy(buffer, m_output.available_buffer, size<<2);
-        m_output.available_buffer      += size<<2;
+        memcpy(buffer, m_output.available_buffer, size << 2);
+        m_output.available_buffer      += size << 2;
         m_output.available_buffer_size -= size;
         return requested_size;
       }
       else
       {
-        memcpy(buffer, m_output.available_buffer, m_output.available_buffer_size<<2);
-        m_output.available_buffer = 0;
+        memcpy(buffer, m_output.available_buffer, m_output.available_buffer_size << 2);
+        m_output.available_buffer = nullptr;
 
         buffer += m_output.available_buffer_size<<2;
         size   -= m_output.available_buffer_size;
@@ -326,7 +319,7 @@ void File2SFReader::seek(int ms)
     decode_initialize();
   }
 
-  unsigned int howmany = ( int )( ( p_seconds - m_emu_pos )*44100);
+  unsigned int howmany = ( int )( ( p_seconds - m_emu_pos ) * 44100);
   // more abortable, and emu doesn't like doing huge numbers of samples per call anyway
   while ( howmany )
   {
@@ -385,7 +378,7 @@ int File2SFReader::open(const char* path)
 
   psf_info_meta_state info_state;
   info_state.info = &m_info;
-  if ( psf_load(path, &f2sf_file_system, 0x24, 0, 0, psf_info_meta, &info_state, 0) <= 0 )
+  if ( psf_load(path, &f2sf_file_system, 0x24, nullptr, nullptr, psf_info_meta, &info_state, 0) <= 0 )
     return -1;
 
   m_tag_song_ms = info_state.tag_song_ms;

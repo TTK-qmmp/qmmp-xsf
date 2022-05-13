@@ -13,7 +13,7 @@ struct gsf_loader_state
 
   gsf_loader_state()
     : entry_set(0)
-    , data(0)
+    , data(nullptr)
     , data_size(0)
   {
   }
@@ -24,7 +24,6 @@ struct gsf_loader_state
       free(data);
   }
 };
-
 
 struct gsf_running_state
 {
@@ -56,9 +55,9 @@ private:
   void decode_initialize();
   bool decode_run(int16_t* * output_buffer, uint16_t* output_samples);
 
-  gsf_loader_state*        m_state;
-  struct gsf_running_state m_output;
-  struct mCore*            m_module;
+  gsf_loader_state* m_state;
+  gsf_running_state m_output;
+  mCore*            m_module;
 };
 
 #endif

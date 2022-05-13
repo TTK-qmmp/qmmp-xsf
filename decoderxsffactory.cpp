@@ -4,9 +4,16 @@
 
 #include <QMessageBox>
 
-bool DecoderXSFFactory::canDecode(QIODevice *) const
+bool DecoderXSFFactory::canDecode(QIODevice *input) const
 {
-    return false;
+    QFile *file = static_cast<QFile*>(input);
+    if(!file)
+    {
+        return false;
+    }
+
+    XSFHelper helper(file->fileName());
+    return helper.initialize();
 }
 
 DecoderProperties DecoderXSFFactory::properties() const
@@ -19,7 +26,9 @@ DecoderProperties DecoderXSFFactory::properties() const
     properties.filters << "*.usf" << "*.miniusf";
     properties.filters << "*.ncsf" << "*.minincsf";
     properties.filters << "*.snsf" << "*.minisnsf";
+    properties.filters << "*.pcm" << "*.msu";
     properties.description = "Overload Audio File";
+    properties.protocols << "file";
     properties.noInput = true;
     return properties;
 }
@@ -39,20 +48,20 @@ QList<TrackInfo*> DecoderXSFFactory::createPlayList(const QString &path, TrackIn
     }
 
     XSFHelper helper(path);
-    helper.metaOnly(true);
+    helper.metaMode(true);
     if(!helper.initialize())
     {
         delete info;
         return QList<TrackInfo*>();
     }
 
-    if(parts & TrackInfo::MetaData)
+    if((parts & TrackInfo::MetaData) && helper.hasTags())
     {
-        const QMap<Qmmp::MetaData, QString> metaData(helper.readMetaData());
-        for(auto itr = metaData.begin(); itr != metaData.end(); ++itr)
-        {
-            info->setValue(itr.key(), itr.value());
-        }
+        info->setValue(Qmmp::TITLE, helper.tag("title"));
+        info->setValue(Qmmp::ARTIST, helper.tag("artist"));
+        info->setValue(Qmmp::ALBUM, helper.tag("album"));
+        info->setValue(Qmmp::GENRE, helper.tag("genre"));
+        info->setValue(Qmmp::YEAR, helper.tag("year"));
     }
 
     if(parts & TrackInfo::Properties)
@@ -61,7 +70,7 @@ QList<TrackInfo*> DecoderXSFFactory::createPlayList(const QString &path, TrackIn
         info->setValue(Qmmp::SAMPLERATE, helper.sampleRate());
         info->setValue(Qmmp::CHANNELS, helper.channels());
         info->setValue(Qmmp::BITS_PER_SAMPLE, helper.depth());
-        info->setValue(Qmmp::FORMAT_NAME, "XSF");
+        info->setValue(Qmmp::FORMAT_NAME, "Overload XSF");
         info->setDuration(helper.totalTime());
     }
     return QList<TrackInfo*>() << info;

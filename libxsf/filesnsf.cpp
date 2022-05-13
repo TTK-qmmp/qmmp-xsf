@@ -162,8 +162,8 @@ const psf_file_callbacks fsnsf_file_system = {
 
 
 FileSNSFReader::FileSNSFReader()
-  : m_state(0)
-  , m_module(0)
+  : m_state(nullptr)
+  , m_module(nullptr)
 {
 }
 
@@ -208,7 +208,7 @@ void FileSNSFReader::seek(int ms)
     decode_initialize();
   }
 
-  unsigned int howmany = ( int )( ( p_seconds - m_emu_pos )*44100);
+  unsigned int howmany = ( int )( ( p_seconds - m_emu_pos ) * 44100);
   // more abortable, and emu doesn't like doing huge numbers of samples per call anyway
   while ( howmany )
   {
@@ -274,7 +274,7 @@ int FileSNSFReader::open(const char* path)
 
   psf_info_meta_state info_state;
   info_state.info = &m_info;
-  if (psf_load(path, &fsnsf_file_system, 0x23, 0, 0, psf_info_meta, &info_state, 0) <= 0)
+  if (psf_load(path, &fsnsf_file_system, 0x23, nullptr, nullptr, psf_info_meta, &info_state, 0) <= 0)
     return -1;
 
   m_tag_song_ms = info_state.tag_song_ms;
@@ -299,7 +299,7 @@ void FileSNSFReader::decode_initialize()
   m_state  = new snsf_loader_state();
   m_module = new SNESSystem();
 
-  if ( psf_load(m_path.c_str(), &fsnsf_file_system, 0x23, snsf_loader, m_state, 0, 0, 0) < 0 )
+  if ( psf_load(m_path.c_str(), &fsnsf_file_system, 0x23, snsf_loader, m_state, nullptr, nullptr, 0) < 0 )
     throw std::bad_alloc();
 
   m_module->Load(m_state->data, m_state->data_size, m_state->sram, m_state->sram_size);
