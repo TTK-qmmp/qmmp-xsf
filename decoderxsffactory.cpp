@@ -90,9 +90,9 @@ void DecoderXSFFactory::showSettings(QWidget *parent)
 
 void DecoderXSFFactory::showAbout(QWidget *parent)
 {
-    QMessageBox::about (parent, tr("About XSF Reader Plugin"),
-                        tr("Qmmp XSF Reader Plugin")+"\n"+
-                        tr("Written by: Greedysky <greedysky@163.com>"));
+    QMessageBox::about(parent, tr("About XSF Reader Plugin"),
+                       tr("Qmmp XSF Reader Plugin") + "\n" +
+                       tr("Written by: Greedysky <greedysky@163.com>"));
 }
 
 QString DecoderXSFFactory::translation() const
