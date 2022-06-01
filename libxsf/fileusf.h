@@ -22,7 +22,7 @@ struct usf_loader_state
 };
 
 
-class FileUSFReader : public FileReader
+class FileUSFReader : public AbstractReader
 {
 public:
   FileUSFReader();

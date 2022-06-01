@@ -22,7 +22,7 @@ struct msu_loader_state
 };
 
 
-class FileMSUReader : public FileReader
+class FileMSUReader : public AbstractReader
 {
 public:
   FileMSUReader();

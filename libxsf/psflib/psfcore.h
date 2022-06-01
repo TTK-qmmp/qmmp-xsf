@@ -154,11 +154,11 @@ struct psf_info_meta_state
 };
 
 
-class FileReader
+class AbstractReader
 {
 public:
-  FileReader();
-  virtual ~FileReader();
+  AbstractReader();
+  virtual ~AbstractReader();
 
   virtual bool load(const char* path, bool meta) = 0;
   virtual int  read(short* buffer, int size)     = 0;

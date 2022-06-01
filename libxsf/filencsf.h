@@ -15,7 +15,7 @@ struct ncsf_loader_state
 };
 
 
-class FileNCSFReader : public FileReader
+class FileNCSFReader : public AbstractReader
 {
 public:
   FileNCSFReader();

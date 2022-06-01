@@ -38,7 +38,7 @@ struct snsf_running_state
 
 
 class SNESSystem;
-class FileSNSFReader : public FileReader
+class FileSNSFReader : public AbstractReader
 {
 public:
   FileSNSFReader();

@@ -339,7 +339,7 @@ int psf_info_meta(void* context, const char* name, const char* value)
 }
 
 
-FileReader::FileReader()
+AbstractReader::AbstractReader()
 {
   m_emu_pos      = 0.0;
   m_data_written = 0;
@@ -350,21 +350,21 @@ FileReader::FileReader()
   m_tag_fade_ms  = 0;
 }
 
-FileReader::~FileReader()
+AbstractReader::~AbstractReader()
 {
 }
 
-file_meta FileReader::get_meta_map() const
+file_meta AbstractReader::get_meta_map() const
 {
   return m_info.get_meta_map();
 }
 
-double FileReader::mul_div(int ms, int sampleRate, int d)
+double AbstractReader::mul_div(int ms, int sampleRate, int d)
 {
   return ((double)ms)*sampleRate/d;
 }
 
-void FileReader::calcfade()
+void AbstractReader::calcfade()
 {
   m_song_len = mul_div(m_tag_song_ms - m_pos_delta, 44100, 1000);
   m_fade_len = mul_div(m_tag_fade_ms, 44100, 1000);

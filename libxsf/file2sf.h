@@ -54,7 +54,7 @@ struct twosf_running_state
 };
 
 
-class File2SFReader : public FileReader
+class File2SFReader : public AbstractReader
 {
 public:
   File2SFReader();

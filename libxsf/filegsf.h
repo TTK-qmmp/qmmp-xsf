@@ -35,7 +35,7 @@ struct gsf_running_state
 };
 
 
-class FileGSFReader : public FileReader
+class FileGSFReader : public AbstractReader
 {
 public:
   FileGSFReader();
