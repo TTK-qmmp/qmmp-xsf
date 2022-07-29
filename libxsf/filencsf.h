@@ -23,7 +23,6 @@ public:
 
   virtual bool load(const char* path, bool meta) override;
   virtual int  read(short* buffer, int size) override;
-  virtual int  length() override;
   virtual void seek(int ms) override;
 
 private:

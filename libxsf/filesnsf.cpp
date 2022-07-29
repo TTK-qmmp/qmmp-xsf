@@ -195,11 +195,6 @@ int FileSNSFReader::read(short* buffer, int size)
   return decode_run(buffer, size);
 }
 
-int FileSNSFReader::length()
-{
-  return m_tag_song_ms;
-}
-
 void FileSNSFReader::seek(int ms)
 {
   double p_seconds = ms / 1000.0;
@@ -208,7 +203,7 @@ void FileSNSFReader::seek(int ms)
     decode_initialize();
   }
 
-  unsigned int howmany = ( int )( ( p_seconds - m_emu_pos ) * 44100);
+  unsigned int howmany = ( int )( ( p_seconds - m_emu_pos ) * m_sample_rate);
   // more abortable, and emu doesn't like doing huge numbers of samples per call anyway
   while ( howmany )
   {
@@ -286,8 +281,9 @@ int FileSNSFReader::open(const char* path)
     m_tag_fade_ms = 10000;
   }
 
+  m_sample_rate = 44100;
   m_info.set_length( (double)( m_tag_song_ms + m_tag_fade_ms ) * .001);
-  m_info.info_set_int("samplerate", 44100);
+  m_info.info_set_int("samplerate", m_sample_rate);
   m_info.info_set_int("channels", 2);
   return 0;
 }
@@ -303,7 +299,7 @@ void FileSNSFReader::decode_initialize()
     throw std::bad_alloc();
 
   m_module->Load(m_state->data, m_state->data_size, m_state->sram, m_state->sram_size);
-  m_module->soundSampleRate = 44100;
+  m_module->soundSampleRate = m_sample_rate;
   m_module->SoundInit(&m_output.sample_buffer, &m_output.bytes_in_buffer);
   m_module->SoundReset();
   m_module->Init();
@@ -317,7 +313,7 @@ int FileSNSFReader::decode_run(int16_t* output_buffer, uint16_t)
   if ( !m_state )
     return 0;
 
-  if ( m_tag_song_ms && ( m_pos_delta + mul_div(m_data_written, 1000, 44100) ) >= m_tag_song_ms + m_tag_fade_ms )
+  if ( m_tag_song_ms && ( m_pos_delta + mul_div(m_data_written, 1000, m_sample_rate) ) >= m_tag_song_ms + m_tag_fade_ms )
     return 0;
 
   unsigned int written = 0;
@@ -334,7 +330,7 @@ int FileSNSFReader::decode_run(int16_t* output_buffer, uint16_t)
     written = m_output.bytes_in_buffer / 4;
   }
 
-  m_emu_pos += double(written) / 44100.;
+  m_emu_pos += double(written) / m_sample_rate;
 
   int d_start, d_end;
   d_start         = m_data_written;

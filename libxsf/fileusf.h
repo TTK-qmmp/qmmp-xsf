@@ -5,8 +5,7 @@
 
 struct usf_loader_state
 {
-  int64_t len     = 0;
-  int sample_rate = 0;
+  int64_t len = 0;
   void* state;
 
   usf_loader_state()
@@ -30,7 +29,6 @@ public:
 
   virtual bool load(const char* path, bool meta) override;
   virtual int  read(short* buffer, int size) override;
-  virtual int  length() override;
   virtual void seek(int ms) override;
 
 private:

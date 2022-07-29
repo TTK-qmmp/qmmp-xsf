@@ -162,9 +162,10 @@ public:
 
   virtual bool load(const char* path, bool meta) = 0;
   virtual int  read(short* buffer, int size)     = 0;
-  virtual int  length()                          = 0;
   virtual void seek(int ms)                      = 0;
 
+  int length() const;
+  int rate() const;
   file_meta get_meta_map() const;
 
 protected:
@@ -175,6 +176,7 @@ protected:
   file_info   m_info;
 
   double m_emu_pos;    // in seconds
+  int    m_sample_rate;
   int    m_data_written, m_pos_delta;
   int    m_song_len, m_fade_len;
   int    m_tag_song_ms, m_tag_fade_ms;

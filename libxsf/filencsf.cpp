@@ -98,11 +98,6 @@ int FileNCSFReader::read(short* buffer, int size)
   return decode_run(buffer, size);
 }
 
-int FileNCSFReader::length()
-{
-  return m_tag_song_ms;
-}
-
 void FileNCSFReader::seek(int time)
 {
   double p_seconds = double(time) / 1000.0;
@@ -111,7 +106,7 @@ void FileNCSFReader::seek(int time)
     decode_initialize();
   }
 
-  unsigned int howmany = (int)(p_seconds - m_emu_pos, 44100);
+  unsigned int howmany = (int)(p_seconds - m_emu_pos, m_sample_rate);
   // more abortable, and emu doesn't like doing huge numbers of samples per call anyway
   while (howmany)
   {
@@ -184,8 +179,9 @@ int FileNCSFReader::open(const char* path)
     m_tag_fade_ms = 10000;
   }
 
+  m_sample_rate = 44100;
   m_info.set_length( (double)( m_tag_song_ms + m_tag_fade_ms ) * .001);
-  m_info.info_set_int("samplerate", 44100);
+  m_info.info_set_int("samplerate", m_sample_rate);
   m_info.info_set_int("channels", 2);
   return 0;
 }
@@ -206,7 +202,7 @@ void FileNCSFReader::decode_initialize()
   auto* sseq = m_state->sdat->sseq.get();
 
   m_module->sseqVol       = Cnv_Scale(sseq->info.vol);
-  m_module->sampleRate    = 44100;
+  m_module->sampleRate    = m_sample_rate;
   m_module->interpolation = INTERPOLATION_SINC;
   m_module->Setup(sseq);
   m_module->Timer();

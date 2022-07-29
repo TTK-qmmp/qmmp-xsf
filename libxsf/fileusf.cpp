@@ -82,23 +82,18 @@ int FileUSFReader::read(short* buffer, int size)
   return decode_run(buffer, size);
 }
 
-int FileUSFReader::length()
-{
-  return m_tag_song_ms;
-}
-
 void FileUSFReader::seek(int ms)
 {
-  if (ms / 1000 * m_state->sample_rate < m_emu_pos)
+  if (ms / 1000 * m_sample_rate < m_emu_pos)
   {
     usf_restart(m_state->state);
     m_emu_pos = 0;
   }
 
-  int64_t left = ms * m_state->sample_rate  / 1000 - m_emu_pos;
+  int left = ms / 1000 * m_sample_rate - m_emu_pos;
   while (left > 1024)
   {
-    usf_render(m_state->state, 0, 1024, &m_state->sample_rate);
+    usf_render(m_state->state, 0, 1024, &m_sample_rate);
     m_emu_pos += 1024;
     left      -= 1024;
   }
@@ -157,8 +152,9 @@ int FileUSFReader::open(const char* path)
     m_tag_fade_ms = 10000;
   }
 
+  m_sample_rate = 44100;
   m_info.set_length( (double)( m_tag_song_ms + m_tag_fade_ms ) * .001);
-  m_info.info_set_int("samplerate", 44100);
+  m_info.info_set_int("samplerate", m_sample_rate);
   m_info.info_set_int("channels", 2);
   return 0;
 }
@@ -180,10 +176,9 @@ void FileUSFReader::decode_initialize()
   usf_set_fifo_full(m_state->state, 0);
   usf_set_hle_audio(m_state->state, 1);
 
-  int32_t srate;
-  usf_render(m_state->state, 0, 0, &srate);
-  m_state->sample_rate = srate;
-  m_state->len         = srate * 4 * m_tag_song_ms / 1000;
+
+  usf_render(m_state->state, 0, 0, &m_sample_rate);
+  m_state->len = m_sample_rate * (m_tag_song_ms / 1000);
 
   reset_playback();
 }
@@ -196,7 +191,7 @@ int FileUSFReader::decode_run(int16_t* output_buffer, uint16_t size)
   if (m_state->len > 0 && m_emu_pos >= m_state->len)
     return 0;
 
-  if (usf_render(m_state->state, (int16_t *)output_buffer, size, &m_state->sample_rate))
+  if (usf_render(m_state->state, (int16_t *)output_buffer, size, &m_sample_rate))
     return 0;
 
   m_emu_pos += size;

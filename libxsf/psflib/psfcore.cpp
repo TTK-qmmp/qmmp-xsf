@@ -342,6 +342,7 @@ int psf_info_meta(void* context, const char* name, const char* value)
 AbstractReader::AbstractReader()
 {
   m_emu_pos      = 0.0;
+  m_sample_rate  = 0;
   m_data_written = 0;
   m_pos_delta    = 0;
   m_song_len     = 0;
@@ -352,6 +353,16 @@ AbstractReader::AbstractReader()
 
 AbstractReader::~AbstractReader()
 {
+}
+
+int AbstractReader::length() const
+{
+  return m_tag_song_ms + m_tag_fade_ms;
+}
+
+int AbstractReader::rate() const
+{
+  return m_sample_rate;
 }
 
 file_meta AbstractReader::get_meta_map() const

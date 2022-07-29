@@ -200,11 +200,6 @@ int FileGSFReader::read(short* buffer, int size)
   return requested_size;
 }
 
-int FileGSFReader::length()
-{
-  return m_tag_song_ms;
-}
-
 void FileGSFReader::seek(int ms)
 {
   double p_seconds = ms / 1000.0;
@@ -213,7 +208,7 @@ void FileGSFReader::seek(int ms)
     decode_initialize();
   }
 
-  unsigned int howmany = ( int )( ( p_seconds - m_emu_pos ) * 44100 );
+  unsigned int howmany = ( int )( ( p_seconds - m_emu_pos ) * m_sample_rate);
   // more abortable, and emu doesn't like doing huge numbers of samples per call anyway
   while ( howmany )
   {
@@ -291,8 +286,9 @@ int FileGSFReader::open(const char* path)
     m_tag_fade_ms = 10000;
   }
 
+  m_sample_rate = 44100;
   m_info.set_length( (double)( m_tag_song_ms + m_tag_fade_ms ) * .001);
-  m_info.info_set_int("samplerate", 44100);
+  m_info.info_set_int("samplerate", m_sample_rate);
   m_info.info_set_int("channels", 2);
   return 0;
 }
@@ -328,14 +324,14 @@ void FileGSFReader::decode_initialize()
 
   core->setAudioBufferSize(core, 2048);
 
-  blip_set_rates(core->getAudioChannel(core, 0), core->frequency(core), 44100);
-  blip_set_rates(core->getAudioChannel(core, 1), core->frequency(core), 44100);
+  blip_set_rates(core->getAudioChannel(core, 0), core->frequency(core), m_sample_rate);
+  blip_set_rates(core->getAudioChannel(core, 1), core->frequency(core), m_sample_rate);
 
   struct mCoreOptions opts = {};
   opts.useBios    = false;
   opts.skipBios   = true;
   opts.volume     = 0x100;
-  opts.sampleRate = 44100;
+  opts.sampleRate = m_sample_rate;
 
   mCoreConfigLoadDefaults(&core->config, &opts);
   core->loadROM(core, rom);
@@ -350,7 +346,7 @@ bool FileGSFReader::decode_run(int16_t* * output_buffer, uint16_t* output_sample
   if ( !m_state )
     return false;
     
-  if ( m_tag_song_ms && ( m_pos_delta + mul_div(m_data_written, 1000, 44100) ) >= m_tag_song_ms + m_tag_fade_ms )
+  if ( m_tag_song_ms && ( m_pos_delta + mul_div(m_data_written, 1000, m_sample_rate) ) >= m_tag_song_ms + m_tag_fade_ms )
     return false;
 
   int samples = ( m_song_len + m_fade_len ) - m_data_written;
@@ -362,7 +358,7 @@ bool FileGSFReader::decode_run(int16_t* * output_buffer, uint16_t* output_sample
     m_module->runFrame(m_module);
 
   unsigned int written = m_output.buffered;
-  m_emu_pos += double( written ) / 44100.;
+  m_emu_pos += double( written ) / m_sample_rate;
 
   int d_start, d_end;
   d_start         = m_data_written;

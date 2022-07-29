@@ -306,11 +306,6 @@ int File2SFReader::read(short* buffer, int size)
   return requested_size;
 }
 
-int File2SFReader::length()
-{
-  return m_tag_song_ms;
-}
-
 void File2SFReader::seek(int ms)
 {
   double p_seconds = ms / 1000.0;
@@ -319,7 +314,7 @@ void File2SFReader::seek(int ms)
     decode_initialize();
   }
 
-  unsigned int howmany = ( int )( ( p_seconds - m_emu_pos ) * 44100);
+  unsigned int howmany = ( int )( ( p_seconds - m_emu_pos ) * m_sample_rate);
   // more abortable, and emu doesn't like doing huge numbers of samples per call anyway
   while ( howmany )
   {
@@ -390,8 +385,9 @@ int File2SFReader::open(const char* path)
     m_tag_fade_ms = 10000;
   }
 
+  m_sample_rate = 44100;
   m_info.set_length( (double)( m_tag_song_ms + m_tag_fade_ms ) * .001);
-  m_info.info_set_int("samplerate", 44100);
+  m_info.info_set_int("samplerate", m_sample_rate);
   m_info.info_set_int("channels", 2);
   return 0;
 }
@@ -455,7 +451,7 @@ bool File2SFReader::decode_run(int16_t* * output_buffer, uint16_t* output_sample
   ptr = m_output.samples;
 
   // note: copy/paste standard impl
-  m_emu_pos += double( written ) / 44100.;
+  m_emu_pos += double( written ) / m_sample_rate;
 
   int d_start, d_end;
   d_start         = m_data_written;
