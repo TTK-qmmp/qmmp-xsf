@@ -4,7 +4,7 @@ QMAKE_CFLAGS += -msse4.1 -std=gnu11
 HEADERS += decoderxsffactory.h \
            decoder_xsf.h \
            xsfhelper.h
-    
+
 SOURCES += decoderxsffactory.cpp \
            decoder_xsf.cpp \
            xsfhelper.cpp \
