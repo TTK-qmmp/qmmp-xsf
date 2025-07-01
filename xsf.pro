@@ -1,5 +1,9 @@
-QMAKE_CXXFLAGS += -msse4.1 -std=c++11
 QMAKE_CFLAGS += -msse4.1 -std=gnu11
+greaterThan(QT_MAJOR_VERSION, 5){
+    QMAKE_CXXFLAGS += -msse4.1 -std=c++17
+}else{
+    QMAKE_CXXFLAGS += -msse4.1 -std=c++11
+}
 
 HEADERS += decoderxsffactory.h \
            decoder_xsf.h \
