@@ -11,7 +11,7 @@
 #include <sstream>
 #include <typeinfo>
 #include <locale>
-#if (defined(__GNUC__) || defined(__clang__)) && !defined(_LIBCPP_VERSION)
+#if ((defined(__GNUC__) && __GNUC__ < 5) || defined(__clang__)) && !defined(_LIBCPP_VERSION)
 #ifdef _WIN32
 # include "wstring_convert.h"
 #endif
