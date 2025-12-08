@@ -231,6 +231,11 @@ void FileGSFReader::seek(int ms)
   calcfade();
 }
 
+const char * FileGSFReader::format() const
+{
+  return "Game Boy Advance Song Format";
+}
+
 void FileGSFReader::reset_playback()
 {
   m_emu_pos      = 0.;

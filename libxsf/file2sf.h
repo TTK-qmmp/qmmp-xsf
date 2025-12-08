@@ -60,9 +60,11 @@ public:
   File2SFReader();
   virtual ~File2SFReader();
 
-  virtual bool load(const char* path, bool meta) override;
-  virtual int  read(short* buffer, int size) override;
-  virtual void seek(int ms) override;
+  virtual bool load(const char* path, bool meta) override final;
+  virtual int  read(short* buffer, int size) override final;
+  virtual void seek(int ms) override final;
+
+  virtual const char * format() const override final;
 
 private:
   void reset_playback();

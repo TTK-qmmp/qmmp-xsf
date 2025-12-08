@@ -227,6 +227,11 @@ void FileSNSFReader::seek(int ms)
   calcfade();
 }
 
+const char * FileSNSFReader::format() const
+{
+  return "Super Nintendo Sound Format";
+}
+
 void FileSNSFReader::reset_playback()
 {
   m_emu_pos      = 0.;

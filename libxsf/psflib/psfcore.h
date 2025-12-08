@@ -161,8 +161,10 @@ public:
   virtual ~AbstractReader();
 
   virtual bool load(const char* path, bool meta) = 0;
-  virtual int  read(short* buffer, int size)     = 0;
-  virtual void seek(int ms)                      = 0;
+  virtual int  read(short* buffer, int size) = 0;
+  virtual void seek(int ms) = 0;
+
+  virtual const char * format() const = 0;
 
   int length() const;
   int rate() const;

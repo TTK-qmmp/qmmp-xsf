@@ -332,6 +332,11 @@ void File2SFReader::seek(int ms)
   calcfade();
 }
 
+const char * File2SFReader::format() const
+{
+  return "Nintendo DS Audio Format";
+}
+
 void File2SFReader::reset_playback()
 {
   m_emu_pos      = 0.;

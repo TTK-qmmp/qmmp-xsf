@@ -128,6 +128,11 @@ void FileNCSFReader::seek(int time)
   calcfade();
 }
 
+const char * FileNCSFReader::format() const
+{
+  return "Nintendo DS Nitro Composer Sound Format";
+}
+
 void FileNCSFReader::reset_playback()
 {
   m_emu_pos      = 0.;

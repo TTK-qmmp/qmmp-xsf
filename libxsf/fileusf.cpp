@@ -99,6 +99,11 @@ void FileUSFReader::seek(int ms)
   }
 }
 
+const char * FileUSFReader::format() const
+{
+  return "Nintendo 64 Song Format";
+}
+
 void FileUSFReader::reset_playback()
 {
   m_emu_pos      = 0.;

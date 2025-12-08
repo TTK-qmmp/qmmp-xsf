@@ -41,6 +41,11 @@ void FileMSUReader::seek(int ms)
   m_state->pos = (m_state->pos / (BUFFER_SIZE * 2)) * (BUFFER_SIZE * 2);
 }
 
+const char * FileMSUReader::format() const
+{
+  return "Mercurial Magic";
+}
+
 void FileMSUReader::reset_playback()
 {
   m_emu_pos      = 0.;

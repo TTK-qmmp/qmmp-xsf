@@ -47,7 +47,7 @@ template<typename T> inline std::string stringify(const T &x)
 
 template<typename T> inline std::wstring wstringify(const T &x)
 {
-	std::wostringstream o;
+    std::wostringstream o;
 	if (!(o << x))
 		throw BadConversion(std::string("wstringify(") + typeid(x).name() + ")");
 	return o.str();
