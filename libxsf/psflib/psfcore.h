@@ -48,9 +48,9 @@
   }))
 
 
-int           stricmp_utf8(std::string const& s1, const char* s2);
-int           stricmp_utf8(const char* s1, const char* s2);
-int           stricmp_utf8_partial(std::string const& s1,  const char* s2);
+int stricmp_utf8(std::string const& s1, const char* s2);
+int stricmp_utf8(const char* s1, const char* s2);
+int stricmp_utf8_partial(std::string const& s1,  const char* s2);
 unsigned long parse_time_crap(const char* input);
 
 unsigned get_le32(void const* p);
@@ -103,36 +103,14 @@ public:
   file_info();
   ~file_info();
 
-  void reset();
+  void meta_add(const char* tag, const char* value);
+  void meta_add(std::string& tag, const char* value);
 
-  file_meta get_meta_map() const;
-
-  void         info_set_int(const char* tag, int value);
-  const char * info_get(std::string& t);
-  void         set_length(double l);
-  void         info_set_lib(std::string& tag, const char* value);
-  //
-  unsigned int meta_get_count();
-  unsigned int meta_enum_value_count(unsigned int i);
-  const char * meta_enum_value(unsigned int i, unsigned int k);
-  void         meta_modify_value(unsigned int i, unsigned int k, const char* value);
-  unsigned int info_get_count();
-  const char * info_enum_name(unsigned int i);
-  void         info_set(const char* name, const char* value);
-  void         info_set(std::string& name, const char* value);
-  const char * info_enum_value(unsigned int i);
-  void         info_set_replaygain(const char* tag, const char* value);
-  void         info_set_replaygain(std::string& tag, const char* value);
-  void         meta_add(const char* tag, const char* value);
-  void         meta_add(std::string& tag, const char* value);
+  inline void reset() { meta_map.clear(); }
+  inline unsigned int meta_get_count() const { return meta_map.size(); }
+  inline file_meta &get_meta() { return meta_map; }
 
 private:
-  double len;
-
-  // no other keys implemented
-  const char* sampleRate;
-  const char* channels;
-
   file_meta meta_map;
 };
 
@@ -168,7 +146,8 @@ public:
 
   int length() const;
   int rate() const;
-  file_meta get_meta_map() const;
+
+  inline file_meta &get_meta() { return m_info.get_meta(); }
 
 protected:
   double mul_div(int ms, int sampleRate, int d);

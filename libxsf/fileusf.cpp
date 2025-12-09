@@ -158,9 +158,6 @@ int FileUSFReader::open(const char* path)
   }
 
   m_sample_rate = 44100;
-  m_info.set_length( (double)( m_tag_song_ms + m_tag_fade_ms ) * .001);
-  m_info.info_set_int("samplerate", m_sample_rate);
-  m_info.info_set_int("channels", 2);
   return 0;
 }
 

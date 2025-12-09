@@ -2,112 +2,12 @@
 
 file_info::file_info()
 {
-  sampleRate = (const char *)malloc(MAX_INFO_LEN);
-  channels   = (const char *)malloc(MAX_INFO_LEN);
+
 }
 
 file_info::~file_info()
 {
-  free((void *)channels);
-  free((void *)sampleRate);
-}
 
-void file_info::reset()
-{
-  meta_map.clear();
-}
-
-file_meta file_info::get_meta_map() const
-{
-  return meta_map;
-}
-
-void file_info::info_set_int(const char* tag, int value)
-{
-  if (!stricmp_utf8(tag, "samplerate"))
-  {
-    snprintf((char *)sampleRate, MAX_INFO_LEN, "%d", value);
-  }
-  else if (!stricmp_utf8(tag, "channels"))
-  {
-    snprintf((char *)channels, MAX_INFO_LEN, "%d", value);
-  }
-  // who cares.. just ignore
-}
-
-const char * file_info::info_get(std::string& t)
-{
-  const char* tag = t.c_str();
-
-  if (!stricmp_utf8(tag, "samplerate"))
-  {
-    return sampleRate;
-  }
-  else if (!stricmp_utf8(tag, "channels"))
-  {
-    return channels;
-  }
-  return "unavailable";
-}
-
-void file_info::set_length(double l)
-{
-  len = l;
-}
-
-void file_info::info_set_lib(std::string& , const char* )
-{
-}
-
-//
-unsigned int file_info::meta_get_count()
-{
-  return 0;
-}
-
-unsigned int file_info::meta_enum_value_count(unsigned int )
-{
-  return 0;
-}
-
-const char * file_info::meta_enum_value(unsigned int , unsigned int )
-{
-  return "dummy";
-}
-
-void file_info::meta_modify_value(unsigned int , unsigned int , const char* )
-{
-}
-
-unsigned int file_info::info_get_count()
-{
-  return 0;
-}
-
-const char * file_info::info_enum_name(unsigned int )
-{
-  return "dummy";
-}
-
-void file_info::info_set(const char* , const char* )
-{
-}
-
-void file_info::info_set(std::string& , const char* )
-{
-}
-
-const char * file_info::info_enum_value(unsigned int )
-{
-  return "dummy";
-}
-
-void file_info::info_set_replaygain(const char* , const char* )
-{
-}
-
-void file_info::info_set_replaygain(std::string& , const char* )
-{
 }
 
 void file_info::meta_add(const char* tag, const char* value)
@@ -119,7 +19,6 @@ void file_info::meta_add(std::string& tag, const char* value)
 {
   meta_map.insert(std::make_pair(tag, value));
 }
-
 
 int stricmp_utf8(std::string const& s1, const char* s2)
 {
@@ -253,17 +152,12 @@ int psf_info_meta(void* context, const char* name, const char* value)
     tag.assign("date");
   }
 
-  if (!stricmp_utf8_partial(tag, "replaygain_"))
-  {
-    state->info->info_set_replaygain(tag, value);
-  }
-  else if (!stricmp_utf8(tag, "length"))
+  if (!stricmp_utf8(tag, "length"))
   {
     int temp = parse_time_crap(value);
     if (temp != BORK_TIME)
     {
       state->tag_song_ms = temp;
-      state->info->info_set_int("2sf_length", state->tag_song_ms);
     }
   }
   else if (!stricmp_utf8(tag, "fade"))
@@ -272,42 +166,11 @@ int psf_info_meta(void* context, const char* name, const char* value)
     if (temp != BORK_TIME)
     {
       state->tag_fade_ms = temp;
-      state->info->info_set_int("2sf_fade", state->tag_fade_ms);
     }
   }
   else if (!stricmp_utf8(tag, "utf8"))
   {
     state->utf8 = true;
-  }
-  else if (!stricmp_utf8_partial(tag, "_lib"))
-  {
-    state->info->info_set_lib(tag, value);
-  }
-  // 2sf additions start
-  else if (!stricmp_utf8(tag, "_frames"))
-  {
-    state->info->info_set(tag, value);
-  }
-  else if (!stricmp_utf8(tag, "_clockdown"))
-  {
-    state->info->info_set(tag, value);
-  }
-  else if (!stricmp_utf8(tag, "_vio2sf_sync_type"))
-  {
-    state->info->info_set(tag, value);
-  }
-  else if (!stricmp_utf8(tag, "_vio2sf_arm9_clockdown_level"))
-  {
-    state->info->info_set(tag, value);
-  }
-  else if (!stricmp_utf8(tag, "_vio2sf_arm7_clockdown_level"))
-  {
-    state->info->info_set(tag, value);
-  }
-  // 2sf additions end
-  else if (tag[0] == '_')
-  {
-    return -1;
   }
 
   if (!strcasecmp(tag.c_str(), "title"))
@@ -365,14 +228,9 @@ int AbstractReader::rate() const
   return m_sample_rate;
 }
 
-file_meta AbstractReader::get_meta_map() const
-{
-  return m_info.get_meta_map();
-}
-
 double AbstractReader::mul_div(int ms, int sampleRate, int d)
 {
-  return ((double)ms)*sampleRate/d;
+  return ((double)ms)*sampleRate / d;
 }
 
 void AbstractReader::calcfade()
