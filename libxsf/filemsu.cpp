@@ -97,9 +97,12 @@ int FileMSUReader::open(const char* path)
   if(memcmp(m_state->buffer, "MSU1", 4))
     return -1;
 
-  m_sample_rate = 44100;
   m_tag_song_ms = (m_state->len - 8.0) / (m_sample_rate * 4.0) * 1000;
   m_tag_fade_ms = 0;
+
+  m_sample_rate = 44100;
+  m_info.meta_add("song_ms", std::to_string(m_tag_song_ms).c_str());
+  m_info.meta_add("fade_ms", std::to_string(m_tag_fade_ms).c_str());
   return 0;
 }
 

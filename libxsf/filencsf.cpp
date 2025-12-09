@@ -185,6 +185,8 @@ int FileNCSFReader::open(const char* path)
   }
 
   m_sample_rate = 44100;
+  m_info.meta_add("song_ms", std::to_string(m_tag_song_ms).c_str());
+  m_info.meta_add("fade_ms", std::to_string(m_tag_fade_ms).c_str());
   return 0;
 }
 

@@ -30,12 +30,6 @@ int stricmp_utf8(const char* s1, const char* s2)
   return strcasecmp(s1, s2);
 }
 
-int stricmp_utf8_partial(std::string const& s1,  const char* s2)
-{
-  std::string s1pref = s1.substr(0, strlen(s2));
-  return strcasecmp(s1pref.c_str(), s2);
-}
-
 unsigned long parse_time_crap(const char* input)
 {
   if (!input)
@@ -154,7 +148,7 @@ int psf_info_meta(void* context, const char* name, const char* value)
 
   if (!stricmp_utf8(tag, "length"))
   {
-    int temp = parse_time_crap(value);
+    const int temp = parse_time_crap(value);
     if (temp != BORK_TIME)
     {
       state->tag_song_ms = temp;
@@ -162,7 +156,7 @@ int psf_info_meta(void* context, const char* name, const char* value)
   }
   else if (!stricmp_utf8(tag, "fade"))
   {
-    int temp = parse_time_crap(value);
+    const int temp = parse_time_crap(value);
     if (temp != BORK_TIME)
     {
       state->tag_fade_ms = temp;
@@ -173,29 +167,33 @@ int psf_info_meta(void* context, const char* name, const char* value)
     state->utf8 = true;
   }
 
-  if (!strcasecmp(tag.c_str(), "title"))
+  if (!stricmp_utf8(tag, "title"))
   {
     state->info->meta_add("title", value);
   }
-  else if (!strcasecmp(tag.c_str(), "artist"))
+  else if (!stricmp_utf8(tag, "artist"))
   {
     state->info->meta_add("artist", value);
   }
-  else if (!strcasecmp(tag.c_str(), "album"))
+  else if (!stricmp_utf8(tag, "album"))
   {
     state->info->meta_add("album", value);
   }
-  else if (!strcasecmp(tag.c_str(), "date"))
+  else if (!stricmp_utf8(tag, "date"))
   {
     state->info->meta_add("year", value);
   }
-  else if (!strcasecmp(tag.c_str(), "genre"))
+  else if (!stricmp_utf8(tag, "genre"))
   {
     state->info->meta_add("genre", value);
   }
-  else if (!strcasecmp(tag.c_str(), "copyright"))
+  else if (!stricmp_utf8(tag, "copyright"))
   {
     state->info->meta_add("copyright", value);
+  }
+  else if (!stricmp_utf8(tag, "comment"))
+  {
+    state->info->meta_add("comment", value);
   }
 
   return 0;
@@ -216,16 +214,6 @@ AbstractReader::AbstractReader()
 
 AbstractReader::~AbstractReader()
 {
-}
-
-int AbstractReader::length() const
-{
-  return m_tag_song_ms + m_tag_fade_ms;
-}
-
-int AbstractReader::rate() const
-{
-  return m_sample_rate;
 }
 
 double AbstractReader::mul_div(int ms, int sampleRate, int d)

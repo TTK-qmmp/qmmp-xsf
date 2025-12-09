@@ -50,7 +50,6 @@
 
 int stricmp_utf8(std::string const& s1, const char* s2);
 int stricmp_utf8(const char* s1, const char* s2);
-int stricmp_utf8_partial(std::string const& s1,  const char* s2);
 unsigned long parse_time_crap(const char* input);
 
 unsigned get_le32(void const* p);
@@ -139,28 +138,27 @@ public:
   virtual ~AbstractReader();
 
   virtual bool load(const char* path, bool meta) = 0;
-  virtual int  read(short* buffer, int size) = 0;
+  virtual int read(short* buffer, int size) = 0;
   virtual void seek(int ms) = 0;
 
   virtual const char * format() const = 0;
 
-  int length() const;
-  int rate() const;
-
+  inline int rate() const { return m_sample_rate; }
+  inline int length() const { return m_tag_song_ms + m_tag_fade_ms; }
   inline file_meta &get_meta() { return m_info.get_meta(); }
 
 protected:
   double mul_div(int ms, int sampleRate, int d);
-  void   calcfade();
+  void calcfade();
 
   std::string m_path;
-  file_info   m_info;
+  file_info m_info;
 
   double m_emu_pos;    // in seconds
-  int    m_sample_rate;
-  int    m_data_written, m_pos_delta;
-  int    m_song_len, m_fade_len;
-  int    m_tag_song_ms, m_tag_fade_ms;
+  int m_sample_rate;
+  int m_data_written, m_pos_delta;
+  int m_song_len, m_fade_len;
+  int m_tag_song_ms, m_tag_fade_ms;
 };
 
 #endif // CORE_H

@@ -8,11 +8,13 @@ greaterThan(QT_MAJOR_VERSION, 5){
 
 HEADERS += decoderxsffactory.h \
            decoder_xsf.h \
-           xsfhelper.h
+           xsfhelper.h \
+           xsfmetadatamodel.h
 
 SOURCES += decoderxsffactory.cpp \
            decoder_xsf.cpp \
            xsfhelper.cpp \
+           xsfmetadatamodel.cpp \
            libxsf/file2sf.cpp \
            libxsf/filegsf.cpp \
            libxsf/fileusf.cpp \
