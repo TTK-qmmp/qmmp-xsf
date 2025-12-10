@@ -1,6 +1,7 @@
 #include "decoderxsffactory.h"
 #include "xsfhelper.h"
 #include "decoder_xsf.h"
+#include "xsfmetadatamodel.h"
 
 #include <QMessageBox>
 
@@ -78,9 +79,8 @@ QList<TrackInfo*> DecoderXSFFactory::createPlayList(const QString &path, TrackIn
 
 MetaDataModel* DecoderXSFFactory::createMetaDataModel(const QString &path, bool readOnly)
 {
-    Q_UNUSED(path);
     Q_UNUSED(readOnly);
-    return nullptr;
+    return new XSFMetaDataModel(path);
 }
 
 #if (QMMP_VERSION_INT < 0x10700) || (0x20000 <= QMMP_VERSION_INT && QMMP_VERSION_INT < 0x20200)
