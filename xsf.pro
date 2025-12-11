@@ -178,8 +178,7 @@ DEFINES += M_CORE_GB \
            HAVE_STDINT_H \
            HAVE_STDBOOL_H
 
-INCLUDEPATH += $$PWD/libxsf \
-               $$PWD/libxsf/mgba \
+INCLUDEPATH += $$PWD/libxsf/mgba \
                $$PWD/libxsf/mgba/src
 
 #CONFIG += BUILD_PLUGIN_INSIDE
