@@ -253,7 +253,7 @@ void FileSNSFReader::reset()
 
   memset(&m_output, 0, sizeof(m_output));
 
-  m_info.reset();
+  m_meta.reset();
 }
 
 void FileSNSFReader::shutdown()
@@ -273,7 +273,7 @@ int FileSNSFReader::open(const char* path)
   m_path = path;
 
   psf_info_meta_state info_state;
-  info_state.info = &m_info;
+  info_state.meta = &m_meta;
   if (psf_load(path, &fsnsf_file_system, 0x23, nullptr, nullptr, psf_info_meta, &info_state, 0) <= 0)
     return -1;
 
@@ -286,9 +286,8 @@ int FileSNSFReader::open(const char* path)
     m_tag_fade_ms = 10000;
   }
 
+  update_duration();
   m_sample_rate = 44100;
-  m_info.meta_add("song_ms", std::to_string(m_tag_song_ms).c_str());
-  m_info.meta_add("fade_ms", std::to_string(m_tag_fade_ms).c_str());
   return 0;
 }
 

@@ -1,23 +1,27 @@
 #include "psfcore.h"
 
-file_info::file_info()
+void meta_info::add(const char* tag, const char* value)
 {
-
+  if(m.find(tag) == m.end())
+  {
+    m.insert(std::make_pair(tag, value));
+  }
+  else
+  {
+    m[tag] = value;
+  }
 }
 
-file_info::~file_info()
+void meta_info::add(std::string& tag, const char* value)
 {
-
-}
-
-void file_info::meta_add(const char* tag, const char* value)
-{
-  meta_map.insert(std::make_pair(tag, value));
-}
-
-void file_info::meta_add(std::string& tag, const char* value)
-{
-  meta_map.insert(std::make_pair(tag, value));
+  if(m.find(tag) == m.end())
+  {
+    m.insert(std::make_pair(tag, value));
+  }
+  else
+  {
+    m[tag] = value;
+  }
 }
 
 int stricmp_utf8(std::string const& s1, const char* s2)
@@ -169,31 +173,31 @@ int psf_info_meta(void* context, const char* name, const char* value)
 
   if (!stricmp_utf8(tag, "title"))
   {
-    state->info->meta_add("title", value);
+    state->meta->add("title", value);
   }
   else if (!stricmp_utf8(tag, "artist"))
   {
-    state->info->meta_add("artist", value);
+    state->meta->add("artist", value);
   }
   else if (!stricmp_utf8(tag, "album"))
   {
-    state->info->meta_add("album", value);
+    state->meta->add("album", value);
   }
   else if (!stricmp_utf8(tag, "date"))
   {
-    state->info->meta_add("year", value);
+    state->meta->add("year", value);
   }
   else if (!stricmp_utf8(tag, "genre"))
   {
-    state->info->meta_add("genre", value);
+    state->meta->add("genre", value);
   }
   else if (!stricmp_utf8(tag, "copyright"))
   {
-    state->info->meta_add("copyright", value);
+    state->meta->add("copyright", value);
   }
   else if (!stricmp_utf8(tag, "comment"))
   {
-    state->info->meta_add("comment", value);
+    state->meta->add("comment", value);
   }
 
   return 0;
@@ -227,3 +231,8 @@ void AbstractReader::calcfade()
   m_fade_len = mul_div(m_tag_fade_ms, 44100, 1000);
 }
 
+void AbstractReader::update_duration()
+{
+  m_meta.add("song_ms", std::to_string(m_tag_song_ms).c_str());
+  m_meta.add("fade_ms", std::to_string(m_tag_fade_ms).c_str());
+}

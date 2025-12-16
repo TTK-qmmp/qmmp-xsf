@@ -94,35 +94,32 @@ struct FileAccess_t
 
 
 //////////////////////////////////////////////////////////////////////////////
-typedef std::map<std::string, std::string> file_meta;
+typedef std::map<std::string, std::string> meta_map;
 
-class file_info
+class meta_info
 {
 public:
-  file_info();
-  ~file_info();
+  void add(const char* tag, const char* value);
+  void add(std::string& tag, const char* value);
 
-  void meta_add(const char* tag, const char* value);
-  void meta_add(std::string& tag, const char* value);
-
-  inline void reset() { meta_map.clear(); }
-  inline unsigned int meta_get_count() const { return meta_map.size(); }
-  inline file_meta &get_meta() { return meta_map; }
+  inline void reset() { m.clear(); }
+  inline unsigned int count() const { return m.size(); }
+  inline meta_map &data() { return m; }
 
 private:
-  file_meta meta_map;
+  meta_map m;
 };
 
 struct psf_info_meta_state
 {
-  file_info* info;
+  meta_info* meta;
   std::string name;
   bool utf8;
   int tag_song_ms;
   int tag_fade_ms;
 
   psf_info_meta_state()
-    : info(nullptr)
+    : meta(nullptr)
     , utf8(false)
     , tag_song_ms(0)
     , tag_fade_ms(0)
@@ -145,14 +142,17 @@ public:
 
   inline int rate() const { return m_sample_rate; }
   inline int length() const { return m_tag_song_ms + m_tag_fade_ms; }
-  inline file_meta &get_meta() { return m_info.get_meta(); }
+  inline void set_song_ms(int ms) { m_tag_song_ms = ms; update_duration(); }
+  inline void set_fade_ms(int ms) { m_tag_fade_ms = ms; update_duration(); }
+  inline meta_map &meta() { return m_meta.data(); }
 
 protected:
   double mul_div(int ms, int sampleRate, int d);
   void calcfade();
+  void update_duration();
 
   std::string m_path;
-  file_info m_info;
+  meta_info m_meta;
 
   double m_emu_pos;    // in seconds
   int m_sample_rate;

@@ -122,7 +122,7 @@ void FileUSFReader::reset()
   m_tag_song_ms = 0;
   m_tag_fade_ms = 0;
 
-  m_info.reset();
+  m_meta.reset();
 }
 
 void FileUSFReader::shutdown()
@@ -141,7 +141,7 @@ int FileUSFReader::open(const char* path)
   m_path = path;
 
   psf_info_meta_state info_state;
-  info_state.info = &m_info;
+  info_state.meta = &m_meta;
 
   // INFO: das info_state wird spaeter in den callbacks als "context" mitgegeben
   // psf_info_meta ist das "target"
@@ -157,9 +157,8 @@ int FileUSFReader::open(const char* path)
     m_tag_fade_ms = 10000;
   }
 
+  update_duration();
   m_sample_rate = 44100;
-  m_info.meta_add("song_ms", std::to_string(m_tag_song_ms).c_str());
-  m_info.meta_add("fade_ms", std::to_string(m_tag_fade_ms).c_str());
   return 0;
 }
 
