@@ -100,7 +100,8 @@ void DecoderXSFFactory::showAbout(QWidget *parent)
 {
     QMessageBox::about(parent, tr("About XSF Reader Plugin"),
                        tr("Qmmp XSF Reader Plugin") + "\n" +
-                       tr("Written by: Greedysky <greedysky@163.com>"));
+                       tr("Written by: Greedysky <greedysky@163.com>") + "\n" +
+                       tr("Based on the source code from the Audio Overload"));
 }
 
 QString DecoderXSFFactory::translation() const

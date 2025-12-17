@@ -1,5 +1,6 @@
 This is a plugin for Qmmp (1.6.0 or greater) which supports XSF file.
-(Audio Overload File)
+
+Based on [Audio Overload](https://gitlab.com/kode54/audacious-xsf) (Audio Overload module).
 
 The following packages are required, including development headers,
 which some vendors split into separate packages:
