@@ -1,6 +1,24 @@
 #include "fileusf.h"
 #include "n64/usf.h"
 
+struct usf_loader_state
+{
+  int64_t len = 0;
+  void* state;
+
+  usf_loader_state()
+    : state(nullptr)
+  {
+  }
+
+  ~usf_loader_state()
+  {
+    if ( state )
+      free(state);
+  }
+};
+
+
 static int usf_loader(void* context, const uint8_t *, size_t exe_size, const uint8_t* data, size_t size)
 {
   if (exe_size > 0)

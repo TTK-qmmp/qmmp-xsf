@@ -1,6 +1,38 @@
 #include "filegsf.h"
 #include "mgba/core/blip_buf.h"
 #include "mgba-util/vfs.h"
+#include "mgba/mgba/core/core.h"
+
+struct gsf_loader_state
+{
+  int entry_set;
+  uint32_t entry;
+  uint8_t* data;
+  size_t data_size;
+
+  gsf_loader_state()
+    : entry_set(0)
+    , data(nullptr)
+    , data_size(0)
+  {
+  }
+
+  ~gsf_loader_state()
+  {
+    if ( data )
+      free(data);
+  }
+};
+
+struct gsf_running_state
+{
+  struct mAVStream stream;
+  int16_t samples[2048 * 2];
+  int buffered;
+  int16_t* available_buffer;
+  uint16_t available_buffer_size;
+};
+
 
 extern "C" void * anonymousMemoryMap(size_t size)
 {
@@ -138,6 +170,7 @@ const psf_file_callbacks fgsf_file_system = {
 
 FileGSFReader::FileGSFReader()
   : m_state(nullptr)
+  , m_output(new gsf_running_state)
   , m_module(nullptr)
 {
 }
@@ -145,6 +178,7 @@ FileGSFReader::FileGSFReader()
 FileGSFReader::~FileGSFReader()
 {
   shutdown();
+  delete m_output;
 }
 
 bool FileGSFReader::load(const char* path, bool meta)
@@ -171,27 +205,27 @@ int FileGSFReader::read(short* buffer, int size)
 
   while (size)
   {
-    if (m_output.available_buffer_size)
+    if (m_output->available_buffer_size)
     {
-      if (m_output.available_buffer_size >= size)
+      if (m_output->available_buffer_size >= size)
       {
-        memcpy(buffer, m_output.available_buffer, size<<2);
-        m_output.available_buffer      += size<<2;
-        m_output.available_buffer_size -= size;
+        memcpy(buffer, m_output->available_buffer, size<<2);
+        m_output->available_buffer      += size<<2;
+        m_output->available_buffer_size -= size;
         return requested_size;
       }
       else
       {
-        memcpy(buffer, m_output.available_buffer, m_output.available_buffer_size<<2);
-        m_output.available_buffer = nullptr;
+        memcpy(buffer, m_output->available_buffer, m_output->available_buffer_size<<2);
+        m_output->available_buffer = nullptr;
 
-        buffer += m_output.available_buffer_size<<2;
-        size   -= m_output.available_buffer_size;
+        buffer += m_output->available_buffer_size<<2;
+        size   -= m_output->available_buffer_size;
       }
     }
     else
     {
-      if(!decode_run(&m_output.available_buffer, &m_output.available_buffer_size))
+      if(!decode_run(&m_output->available_buffer, &m_output->available_buffer_size))
       {
         return 0;                                 // end song (just ignore whatever output might actually be there)
       }
@@ -212,13 +246,13 @@ void FileGSFReader::seek(int ms)
   // more abortable, and emu doesn't like doing huge numbers of samples per call anyway
   while ( howmany )
   {
-    m_output.buffered = 0;
-    while (!m_output.buffered)
+    m_output->buffered = 0;
+    while (!m_output->buffered)
       m_module->runFrame(m_module);
-    unsigned samples = m_output.buffered;
+    unsigned samples = m_output->buffered;
     if ( samples > howmany )
     {
-      memmove(m_output.samples, m_output.samples + howmany * 2, ( samples - howmany ) * 4);
+      memmove(m_output->samples, m_output->samples + howmany * 2, ( samples - howmany ) * 4);
       samples = howmany;
     }
     howmany -= samples;
@@ -254,7 +288,7 @@ void FileGSFReader::reset()
   m_tag_song_ms = 0;
   m_tag_fade_ms = 0;
 
-  memset(&m_output, 0, sizeof(m_output));
+  memset(m_output, 0, sizeof(gsf_running_state));
 
   m_meta.reset();
 }
@@ -318,11 +352,11 @@ void FileGSFReader::decode_initialize()
     throw std::bad_alloc();
   }
 
-  memset(&m_output, 0, sizeof(m_output));
-  m_output.stream.postAudioBuffer = gsf_postAudioBuffer;
+  memset(m_output, 0, sizeof(gsf_running_state));
+  m_output->stream.postAudioBuffer = gsf_postAudioBuffer;
 
   core->init(core);
-  core->setAVStream(core, &m_output.stream);
+  core->setAVStream(core, &m_output->stream);
   mCoreInitConfig(core, NULL);
 
   core->setAudioBufferSize(core, 2048);
@@ -356,11 +390,11 @@ bool FileGSFReader::decode_run(int16_t* * output_buffer, uint16_t* output_sample
   if ( samples > 2048 )
     samples = 2048;
 
-  m_output.buffered = 0;
-  while (!m_output.buffered)
+  m_output->buffered = 0;
+  while (!m_output->buffered)
     m_module->runFrame(m_module);
 
-  unsigned int written = m_output.buffered;
+  unsigned int written = m_output->buffered;
   m_emu_pos += double( written ) / m_sample_rate;
 
   int d_start, d_end;
@@ -370,7 +404,7 @@ bool FileGSFReader::decode_run(int16_t* * output_buffer, uint16_t* output_sample
 
   if ( m_tag_song_ms && d_end > m_song_len )
   {
-    short* foo = m_output.samples;
+    short* foo = m_output->samples;
     int    n;
     for( n = d_start; n < d_end; ++n )
     {
@@ -392,7 +426,7 @@ bool FileGSFReader::decode_run(int16_t* * output_buffer, uint16_t* output_sample
     }
   }
 
-  *output_buffer  = m_output.samples;
+  *output_buffer  = m_output->samples;
   *output_samples = written;
   return true;
 }

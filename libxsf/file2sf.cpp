@@ -2,6 +2,55 @@
 #include "vio2sf/desmume/state.h"
 #include <zlib.h>
 
+struct twosf_loader_state
+{
+  uint8_t* state;
+  uint8_t* rom;
+  size_t rom_size;
+  size_t state_size;
+
+  int initial_frames;
+  int sync_type;
+  int clockdown;
+  int arm9_clockdown_level;
+  int arm7_clockdown_level;
+
+  twosf_loader_state()
+    : state(nullptr)
+    , rom(nullptr)
+    , rom_size(0)
+    , state_size(0)
+    , initial_frames(-1)
+    , sync_type(0)
+    , clockdown(0)
+    , arm9_clockdown_level(0)
+    , arm7_clockdown_level(0)
+  {
+  }
+
+  ~twosf_loader_state()
+  {
+    if (rom)
+    {
+      free(rom);
+      rom = nullptr;
+    }
+    if (state)
+    {
+      free(state);
+      state = nullptr;
+    }
+  }
+};
+
+struct twosf_running_state
+{
+  int16_t samples[AUDIO_BUF_SIZE * 2];
+  int16_t* available_buffer;
+  uint16_t available_buffer_size;
+};
+
+
 // note: used both in "issave=0" and "issave=1" mode
 static int load_2sf_map(struct twosf_loader_state* state, int issave, const unsigned char* udata, unsigned usize)
 {
@@ -244,6 +293,7 @@ const psf_file_callbacks f2sf_file_system = {
 
 File2SFReader::File2SFReader()
   : m_state(nullptr)
+  , m_output(new twosf_running_state)
   , m_module(nullptr)
 {
 }
@@ -251,6 +301,7 @@ File2SFReader::File2SFReader()
 File2SFReader::~File2SFReader()
 {
   shutdown();
+  delete m_output;
 }
 
 bool File2SFReader::load(const char* path, bool meta)
@@ -277,27 +328,27 @@ int File2SFReader::read(short* buffer, int size)
 
   while (size)
   {
-    if (m_output.available_buffer_size)
+    if (m_output->available_buffer_size)
     {
-      if (m_output.available_buffer_size >= size)
+      if (m_output->available_buffer_size >= size)
       {
-        memcpy(buffer, m_output.available_buffer, size << 2);
-        m_output.available_buffer      += size << 2;
-        m_output.available_buffer_size -= size;
+        memcpy(buffer, m_output->available_buffer, size << 2);
+        m_output->available_buffer      += size << 2;
+        m_output->available_buffer_size -= size;
         return requested_size;
       }
       else
       {
-        memcpy(buffer, m_output.available_buffer, m_output.available_buffer_size << 2);
-        m_output.available_buffer = nullptr;
+        memcpy(buffer, m_output->available_buffer, m_output->available_buffer_size << 2);
+        m_output->available_buffer = nullptr;
 
-        buffer += m_output.available_buffer_size<<2;
-        size   -= m_output.available_buffer_size;
+        buffer += m_output->available_buffer_size<<2;
+        size   -= m_output->available_buffer_size;
       }
     }
     else
     {
-      if(!decode_run(&m_output.available_buffer, &m_output.available_buffer_size))
+      if(!decode_run(&m_output->available_buffer, &m_output->available_buffer_size))
       {
         return 0;                               // end song (just ignore whatever output might actually be there)
       }
@@ -320,7 +371,7 @@ void File2SFReader::seek(int ms)
   {
     // 2sf start
     unsigned int samples = (howmany > AUDIO_BUF_SIZE) ? AUDIO_BUF_SIZE : howmany;
-    state_render(m_module, m_output.samples, samples);
+    state_render(m_module, m_output->samples, samples);
     // 2sf end
     howmany -= samples;
   }
@@ -355,7 +406,7 @@ void File2SFReader::reset()
   m_tag_song_ms = 0;
   m_tag_fade_ms = 0;
 
-  memset(&m_output, 0, sizeof(m_output));
+  memset(m_output, 0, sizeof(twosf_running_state));
 
   m_meta.reset();
 }
@@ -449,9 +500,9 @@ bool File2SFReader::decode_run(int16_t* * output_buffer, uint16_t* output_sample
 
   short* ptr;
   // 2sf start
-  state_render(m_module, m_output.samples, written);
+  state_render(m_module, m_output->samples, written);
   // 2sf end
-  ptr = m_output.samples;
+  ptr = m_output->samples;
 
   // note: copy/paste standard impl
   m_emu_pos += double( written ) / m_sample_rate;

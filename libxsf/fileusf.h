@@ -3,23 +3,7 @@
 
 #include "psflib/psfcore.h"
 
-struct usf_loader_state
-{
-  int64_t len = 0;
-  void* state;
-
-  usf_loader_state()
-    : state(nullptr)
-  {
-  }
-
-  ~usf_loader_state()
-  {
-    if ( state )
-      free(state);
-  }
-};
-
+struct usf_loader_state;
 
 class FileUSFReader : public AbstractReader
 {

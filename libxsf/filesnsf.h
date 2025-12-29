@@ -3,40 +3,8 @@
 
 #include "psflib/psfcore.h"
 
-struct snsf_loader_state
-{
-  int base_set;
-  uint32_t base;
-  uint8_t* data;
-  size_t data_size;
-  uint8_t* sram;
-  size_t sram_size;
-
-  snsf_loader_state()
-    : base_set(0)
-    , data(nullptr)
-    , data_size(0)
-    , sram(nullptr)
-    , sram_size(0)
-  {
-  }
-
-  ~snsf_loader_state()
-  {
-    if (data)
-      free(data);
-    if (sram)
-      free(sram);
-  }
-};
-
-struct snsf_running_state
-{
-  unsigned long bytes_in_buffer;
-  std::vector<uint8_t> sample_buffer;
-};
-
-
+struct snsf_loader_state;
+struct snsf_running_state;
 class SNESSystem;
 
 class FileSNSFReader : public AbstractReader
@@ -61,7 +29,7 @@ private:
   int decode_run(int16_t* output_buffer, uint16_t size);
 
   snsf_loader_state* m_state;
-  snsf_running_state m_output;
+  snsf_running_state* m_output;
   SNESSystem* m_module;
 
   int m_remainder;

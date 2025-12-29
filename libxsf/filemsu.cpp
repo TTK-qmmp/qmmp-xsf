@@ -2,6 +2,25 @@
 
 #define BUFFER_SIZE     1024
 
+struct msu_loader_state
+{
+  int64_t len = 0;
+  int64_t pos = 0;
+  void* buffer;
+
+  msu_loader_state()
+    : buffer(nullptr)
+  {
+  }
+
+  ~msu_loader_state()
+  {
+    if ( buffer )
+      free(buffer);
+  }
+};
+
+
 FileMSUReader::FileMSUReader()
   : m_state(nullptr)
 {

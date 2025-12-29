@@ -2,6 +2,14 @@
 #include "sseq/Player.h"
 #include "sseq/SDAT.h"
 
+struct ncsf_loader_state
+{
+  uint32_t sseq = 0;
+  std::vector<uint8_t> sdatData;
+  std::unique_ptr<SDAT> sdat;
+};
+
+
 static int ncsf_loader(void* context, const uint8_t* exe, size_t exe_size, const uint8_t* reserved, size_t reserved_size)
 {
   struct ncsf_loader_state* state = ( struct ncsf_loader_state * ) context;

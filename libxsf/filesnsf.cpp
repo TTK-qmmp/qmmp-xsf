@@ -1,6 +1,40 @@
 #include "filesnsf.h"
 #include "snes9x/SNESSystem.h"
 
+struct snsf_loader_state
+{
+  int base_set;
+  uint32_t base;
+  uint8_t* data;
+  size_t data_size;
+  uint8_t* sram;
+  size_t sram_size;
+
+  snsf_loader_state()
+    : base_set(0)
+    , data(nullptr)
+    , data_size(0)
+    , sram(nullptr)
+    , sram_size(0)
+  {
+  }
+
+  ~snsf_loader_state()
+  {
+    if (data)
+      free(data);
+    if (sram)
+      free(sram);
+  }
+};
+
+struct snsf_running_state
+{
+  unsigned long bytes_in_buffer;
+  std::vector<uint8_t> sample_buffer;
+};
+
+
 static int snsf_loader(void* context, const uint8_t* exe, size_t exe_size, const uint8_t* reserved, size_t reserved_size)
 {
   if ( exe_size < 8 )
@@ -163,6 +197,7 @@ const psf_file_callbacks fsnsf_file_system = {
 
 FileSNSFReader::FileSNSFReader()
   : m_state(nullptr)
+  , m_output(new snsf_running_state)
   , m_module(nullptr)
 {
 }
@@ -170,6 +205,7 @@ FileSNSFReader::FileSNSFReader()
 FileSNSFReader::~FileSNSFReader()
 {
   shutdown();
+  delete m_output;
 }
 
 bool FileSNSFReader::load(const char* path, bool meta)
@@ -207,13 +243,13 @@ void FileSNSFReader::seek(int ms)
   // more abortable, and emu doesn't like doing huge numbers of samples per call anyway
   while ( howmany )
   {
-    m_output.bytes_in_buffer  = 0;
+    m_output->bytes_in_buffer  = 0;
     m_module->soundEnableFlag = (uint8_t)0 ^ 0xff;
     m_module->CPULoop();
-    unsigned samples = m_output.bytes_in_buffer / 4;
+    unsigned samples = m_output->bytes_in_buffer / 4;
     if ( samples > howmany )
     {
-      memmove(m_output.sample_buffer.data(), ((int16_t *) m_output.sample_buffer.data()) + howmany * 2, ( samples - howmany ) * 4);
+      memmove(m_output->sample_buffer.data(), ((int16_t *) m_output->sample_buffer.data()) + howmany * 2, ( samples - howmany ) * 4);
       m_remainder = samples - howmany;
       samples     = howmany;
     }
@@ -251,7 +287,7 @@ void FileSNSFReader::reset()
   m_tag_song_ms = 0;
   m_tag_fade_ms = 0;
 
-  memset(&m_output, 0, sizeof(m_output));
+  memset(m_output, 0, sizeof(snsf_running_state));
 
   m_meta.reset();
 }
@@ -303,7 +339,7 @@ void FileSNSFReader::decode_initialize()
 
   m_module->Load(m_state->data, m_state->data_size, m_state->sram, m_state->sram_size);
   m_module->soundSampleRate = m_sample_rate;
-  m_module->SoundInit(&m_output.sample_buffer, &m_output.bytes_in_buffer);
+  m_module->SoundInit(&m_output->sample_buffer, &m_output->bytes_in_buffer);
   m_module->SoundReset();
   m_module->Init();
   m_module->Reset();
@@ -327,10 +363,10 @@ int FileSNSFReader::decode_run(int16_t* output_buffer, uint16_t)
   }
   else
   {
-    m_output.bytes_in_buffer  = 0;
+    m_output->bytes_in_buffer  = 0;
     m_module->soundEnableFlag = (uint8_t)0 ^ 0xff;
     m_module->CPULoop();
-    written = m_output.bytes_in_buffer / 4;
+    written = m_output->bytes_in_buffer / 4;
   }
 
   m_emu_pos += double(written) / m_sample_rate;
@@ -342,7 +378,7 @@ int FileSNSFReader::decode_run(int16_t* output_buffer, uint16_t)
 
   if ( m_tag_song_ms && d_end > m_song_len )
   {
-    int16_t* foo = reinterpret_cast<int16_t *>(m_output.sample_buffer.data());
+    int16_t* foo = reinterpret_cast<int16_t *>(m_output->sample_buffer.data());
     int      n;
     for( n = d_start; n < d_end; ++n )
     {
@@ -363,6 +399,6 @@ int FileSNSFReader::decode_run(int16_t* output_buffer, uint16_t)
     }
   }
 
-  memcpy(output_buffer, m_output.sample_buffer.data(), written * 2 * sizeof(int16_t));
+  memcpy(output_buffer, m_output->sample_buffer.data(), written * 2 * sizeof(int16_t));
   return written;
 }

@@ -6,14 +6,7 @@
 
 struct SDAT;
 struct Player;
-
-struct ncsf_loader_state
-{
-  uint32_t sseq = 0;
-  std::vector<uint8_t> sdatData;
-  std::unique_ptr<SDAT> sdat;
-};
-
+struct ncsf_loader_state;
 
 class FileNCSFReader : public AbstractReader
 {
