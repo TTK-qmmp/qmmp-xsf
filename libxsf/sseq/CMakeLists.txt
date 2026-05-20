@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.18.0)
+
 project(SSEQPlayer)
 
 set(SOURCES Channel.cpp
