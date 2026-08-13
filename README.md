@@ -1,4 +1,4 @@
-This is a plugin for Qmmp (1.6.0 or greater) which supports XSF file.
+This is an inut plugin for Qmmp (1.6.0 or later) that supports XSF files.
 
 Based on [Audio Overload](https://gitlab.com/kode54/audacious-xsf) (Audio Overload module).
 
