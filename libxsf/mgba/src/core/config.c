@@ -325,14 +325,17 @@ void mCoreConfigCopyValue(struct mCoreConfig* config, const struct mCoreConfig* 
 }
 
 void mCoreConfigMap(const struct mCoreConfig* config, struct mCoreOptions* opts) {
+	int rewindSave;
 	_lookupCharValue(config, "bios", &opts->bios);
 	_lookupCharValue(config, "shader", &opts->shader);
 	_lookupIntValue(config, "logLevel", &opts->logLevel);
 	_lookupIntValue(config, "frameskip", &opts->frameskip);
 	_lookupIntValue(config, "volume", &opts->volume);
 	_lookupIntValue(config, "rewindBufferCapacity", &opts->rewindBufferCapacity);
-	_lookupIntValue(config, "rewindSave", &opts->rewindSave);
+	_lookupIntValue(config, "rewindSave", &rewindSave);
 	_lookupFloatValue(config, "fpsTarget", &opts->fpsTarget);
+	opts->rewindSave = rewindSave != 0;
+
 	unsigned audioBuffers;
 	if (_lookupUIntValue(config, "audioBuffers", &audioBuffers)) {
 		opts->audioBuffers = audioBuffers;

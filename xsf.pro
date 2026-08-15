@@ -178,6 +178,8 @@ DEFINES += M_CORE_GB \
            HAVE_STDINT_H \
            HAVE_STDBOOL_H
 
+unix:DEFINES += HAVE_LOCALE
+
 INCLUDEPATH += $$PWD/libxsf/mgba \
                $$PWD/libxsf/mgba/src
 
