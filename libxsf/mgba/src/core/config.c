@@ -335,7 +335,7 @@ void mCoreConfigMap(const struct mCoreConfig* config, struct mCoreOptions* opts)
 	_lookupIntValue(config, "rewindSave", &rewindSave);
 	_lookupFloatValue(config, "fpsTarget", &opts->fpsTarget);
 	opts->rewindSave = rewindSave != 0;
-
+	
 	unsigned audioBuffers;
 	if (_lookupUIntValue(config, "audioBuffers", &audioBuffers)) {
 		opts->audioBuffers = audioBuffers;

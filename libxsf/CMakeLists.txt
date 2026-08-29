@@ -2,8 +2,18 @@ cmake_minimum_required(VERSION 3.18.0)
 
 project(xsf)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse4.1 -std=gnu11 -Wno-enum-compare")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.1 -Wno-enum-compare")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 -Wno-enum-compare")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-enum-compare")
+
+if(UNIX)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-stringop-overflow")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-stringop-overflow")
+endif()
+
+#if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(x86_64|amd64|x86|i[3-6]86)$")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse4.1")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.1")
+#endif()
 
 add_definitions(-DM_CORE_GB)
 add_definitions(-DM_CORE_GBA)
@@ -16,7 +26,7 @@ add_definitions(-DHAVE_INTTYPES_H)
 add_definitions(-DHAVE_STDINT_H)
 add_definitions(-DHAVE_STDBOOL_H)
 if(UNIX)
-  add_definitions(-DHAVE_LOCALE)
+    add_definitions(-DHAVE_LOCALE)
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/mgba)

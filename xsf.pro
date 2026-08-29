@@ -1,9 +1,14 @@
 
-QMAKE_CFLAGS += -msse4.1 -std=gnu11
+QMAKE_CFLAGS += -std=gnu11
 greaterThan(QT_MAJOR_VERSION, 5){
-    QMAKE_CXXFLAGS += -msse4.1 -std=c++17
+    QMAKE_CXXFLAGS += -std=c++17
 }else{
-    QMAKE_CXXFLAGS += -msse4.1 -std=c++11
+    QMAKE_CXXFLAGS += -std=c++11
+}
+
+contains(QT_ARCH, "windows") | contains(QT_ARCH, "i386") | contains(QT_ARCH, "x86_64"){
+    QMAKE_CFLAGS += -msse4.1
+    QMAKE_CXXFLAGS += -msse4.1
 }
 
 HEADERS += decoderxsffactory.h \
